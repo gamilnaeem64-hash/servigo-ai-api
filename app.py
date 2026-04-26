@@ -21,34 +21,38 @@ except ImportError:
 # ================= CHAT / AI MATCHING =================
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.json or {}
-    user_message = data.get("message", "").lower()
+    try:
+        data = request.json or {}
+        user_message = data.get("message", "").lower()
 
-    # 🧠 simple matching (مؤقت)
-    if "سباك" in user_message or "plumber" in user_message:
+        # 🧠 mapping بسيط
+        if "سباك" in user_message or "plumber" in user_message:
+            matched = "plumber"
+        elif "كهربائي" in user_message or "electrician" in user_message:
+            matched = "electrician"
+        else:
+            return jsonify({
+                "found": False,
+                "message": "مفيش نتائج"
+            })
+
+        # 📦 dummy data (مؤقت لحد ما نوصل الداتا الحقيقية)
+        workers = [
+            {"name": "Ahmed", "rating": 4.8, "distance": 1.2},
+            {"name": "Ali", "rating": 4.5, "distance": 2.0}
+        ]
+
         return jsonify({
             "found": True,
-            "matched": "plumber",
-            "data": [
-                {"name": "Ahmed", "rating": 4.8, "distance": 1.2},
-                {"name": "Ali", "rating": 4.5, "distance": 2.0}
-            ]
+            "matched": matched,
+            "data": workers
         })
 
-    if "كهربائي" in user_message or "electrician" in user_message:
+    except Exception as e:
         return jsonify({
-            "found": True,
-            "matched": "electrician",
-            "data": [
-                {"name": "Khaled", "rating": 4.7, "distance": 1.5}
-            ]
+            "found": False,
+            "error": str(e)
         })
-
-    # ❌ لو مفيش match
-    return jsonify({
-        "found": False,
-        "message": "مفيش نتائج"
-    })
 # ================= MATCH =================
 @app.route("/match", methods=["POST"])
 def match():
