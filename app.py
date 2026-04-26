@@ -21,11 +21,12 @@ except ImportError:
 # ================= CHAT / AI MATCHING =================
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.json
-    message = data.get("message", "")
+    data = request.json or {}
+   user_message = data.get("message", "")
 
     return jsonify({
-        "reply": f"Received: {message}"
+        "Received":True,
+        "message":user_message
     })
 
 # ================= MATCH =================
