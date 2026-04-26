@@ -22,14 +22,33 @@ except ImportError:
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json or {}
-    user_message = data.get("message",
-  "")                            
+    user_message = data.get("message", "").lower()
 
+    # 🧠 simple matching (مؤقت)
+    if "سباك" in user_message or "plumber" in user_message:
+        return jsonify({
+            "found": True,
+            "matched": "plumber",
+            "data": [
+                {"name": "Ahmed", "rating": 4.8, "distance": 1.2},
+                {"name": "Ali", "rating": 4.5, "distance": 2.0}
+            ]
+        })
+
+    if "كهربائي" in user_message or "electrician" in user_message:
+        return jsonify({
+            "found": True,
+            "matched": "electrician",
+            "data": [
+                {"name": "Khaled", "rating": 4.7, "distance": 1.5}
+            ]
+        })
+
+    # ❌ لو مفيش match
     return jsonify({
-        "Received":True,
-        "message":user_message
+        "found": False,
+        "message": "مفيش نتائج"
     })
-
 # ================= MATCH =================
 @app.route("/match", methods=["POST"])
 def match():
