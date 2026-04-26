@@ -22,7 +22,8 @@ except ImportError:
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.json or {}
-    user_message = data.get("message", "")
+    user_message = data.get("message",
+  "")                            
 
     return jsonify({
         "Received":True,
