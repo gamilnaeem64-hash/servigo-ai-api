@@ -1,6 +1,6 @@
-[4/26/2026 8:39 PM] Mariem Gamil: from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify
 
-app = Flask(name)
+app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def home():
@@ -79,6 +79,6 @@ def verify_payment():
     return jsonify(result)
 
 # ================= RUN =================
-if name == "main":
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 6000))
     app.run(host="0.0.0.0", port=port)
