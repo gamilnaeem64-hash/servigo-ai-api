@@ -1,29 +1,10 @@
 from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-@app.route("/", methods=["GET"])
-def home():
-    return "Servigo API is running 🚀"
-
-@app.route("/chat", methods=["POST"])
-def chat():
-    data = request.json
-    message = data.get("message", "")
-
-    return jsonify({
-        "reply": f"Received: {message}"
-    })
-
-if name == "main":
-    app.run(host="0.0.0.0", port=6000)
-[4/26/2026 8:47 PM] Mariem Gamil: from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import requests
 from rapidfuzz import process
 
-app = Flask(name)
+app = Flask(__name__)
 CORS(app)
 
 # ================= IMPORT YOUR MODULES =================
