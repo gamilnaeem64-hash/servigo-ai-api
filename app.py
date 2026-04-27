@@ -10,7 +10,6 @@ try:
     from ai_matching import match_worker
     from payment_ai import verify_receipt
 except:
-    # fallback عشان ما يقعش
     def match_worker(lat, lng, cat, worker_list=[]):
         return [{"name": "Test Worker", "distance": 1.2, "rating": 4.8}]
 
@@ -29,18 +28,32 @@ def chat():
     msg = data.get("message", "").lower()
 
     if "كهربائي" in msg:
-        matched = "electrician"
-    elif "سباك" in msg:
-        matched = "plumber"
-    elif "نجار" in msg:
-        matched = "carpenter"
-    else:
-        return jsonify({"found": False})
+        workers = [
+            {"name": "Ali", "cat": "electrician", "rating": 4.9},
+            {"name": "Sara", "cat": "electrician", "rating": 4.7}
+        ]
 
-    return jsonify({
-        "found": True,
-        "category": matched
-    })
+        return jsonify({
+            "found": True,
+            "data": workers
+        })
+
+    elif "سباك" in msg:
+        workers = [
+            {"name": "Ahmed", "cat": "plumber", "rating": 4.8},
+            {"name": "Mohamed", "cat": "plumber", "rating": 4.6}
+        ]
+
+        return jsonify({
+            "found": True,
+            "data": workers
+        })
+
+    else:
+        return jsonify({
+            "found": False,
+            "data": []
+        })
 
 # ================= MATCH =================
 @app.route("/match", methods=["POST"])
@@ -62,7 +75,7 @@ def match():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-#fix
+
 # ================= VERIFY =================
 @app.route("/verify_payment", methods=["POST"])
 def verify_payment_api():
