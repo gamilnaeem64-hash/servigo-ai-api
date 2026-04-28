@@ -1,59 +1,94 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
+import requests
+from rapidfuzz import process
 
 app = Flask(__name__)
 CORS(app)
 
-# ================= AI IMPORT =================
+# ================= IMPORT =================
 try:
     from ai_matching import match_worker
     from payment_ai import verify_receipt
-except:
+except ImportError:
     def match_worker(lat, lng, cat, worker_list=[]):
         return [{"name": "Test Worker", "distance": 1.2, "rating": 4.8}]
-
+    
     def verify_receipt(path):
-        return {"status": "success", "message": "Test Mode"}
+        return {"status": "success"}
 
-# ================= HOME =================
-@app.route("/")
-def home():
-    return "API is running 🚀"
+# ================= TEST MODE =================
+TEST_MODE = True  # 🔥 خليها True للتجربة
+
+fake_db = {
+    "workers": [
+        {"name": "Ahmed", "category": "plumber"},
+        {"name": "Sara", "category": "electrician"},
+        {"name": "Mohamed", "category": "plumber"}
+    ],
+    "categories": ["plumber", "electrician", "carpenter"],
+    "services": []
+}
+
+# ================= API =================
+DATA_API = "https://servigo-ai-api-production.up.railway.app/api/all-data"
+
+# ================= MAP =================
+CATEGORY_MAP = {
+    "سباك": "plumber",
+    "كهربائي": "electrician",
+    "نجار": "carpenter"
+}
 
 # ================= CHAT =================
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.json or {}
-    msg = data.get("message", "").lower()
+    try:
+        data = request.json or {}
+        user_message = data.get("message", "").lower().strip()
 
-    if "كهربائي" in msg:
-        workers = [
-            {"name": "Ali", "cat": "electrician", "rating": 4.9},
-            {"name": "Sara", "cat": "electrician", "rating": 4.7}
+        if not user_message:
+            return jsonify({"found": False})
+
+        # 🧠 عربي → إنجليزي
+        for ar, en in CATEGORY_MAP.items():
+            if ar in user_message:
+                user_message = en
+                break
+
+        # 📡 مصدر الداتا
+        if TEST_MODE:
+            db = fake_db
+        else:
+            backend = requests.get(DATA_API)
+            db = backend.json()
+
+        workers = db.get("workers", [])
+        categories = db.get("categories", [])
+
+        # 🔍 match
+        best_cat = process.extractOne(user_message, categories) if categories else None
+
+        if not best_cat or best_cat[1] < 60:
+            return jsonify({"found": False})
+
+        matched = best_cat[0]
+
+        results = [
+            w for w in workers
+            if matched.lower() in str(w.get("category", "")).lower()
         ]
 
         return jsonify({
-            "found": True,
-            "data": workers
+            "found": len(results) > 0,
+            "matched": matched,
+            "data": results
         })
 
-    elif "سباك" in msg:
-        workers = [
-            {"name": "Ahmed", "cat": "plumber", "rating": 4.8},
-            {"name": "Mohamed", "cat": "plumber", "rating": 4.6}
-        ]
-
-        return jsonify({
-            "found": True,
-            "data": workers
-        })
-
-    else:
-        return jsonify({
-            "found": False,
-            "data": []
-        })
+    except Exception as e:
+        print("CHAT ERROR:", e)
+        return jsonify({"found": False})
 
 # ================= MATCH =================
 @app.route("/match", methods=["POST"])
@@ -99,6 +134,11 @@ def verify_payment_api():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# ================= HOME =================
+@app.route("/")
+def home():
+    return "API is running 🚀"
 
 # ================= RUN =================
 if __name__ == "__main__":
