@@ -19,7 +19,7 @@ except ImportError:
         return {"status": "success"}
 
 # ================= TEST MODE =================
-TEST_MODE = True  # 🔥 خليها True للتجربة
+TEST_MODE = True
 
 fake_db = {
     "workers": [
@@ -31,10 +31,8 @@ fake_db = {
     "services": []
 }
 
-# ================= API =================
 DATA_API = "https://servigo-ai-api-production.up.railway.app/api/all-data"
 
-# ================= MAP =================
 CATEGORY_MAP = {
     "سباك": "plumber",
     "كهربائي": "electrician",
@@ -51,13 +49,13 @@ def chat():
         if not user_message:
             return jsonify({"found": False})
 
-        # 🧠 عربي → إنجليزي
+        # عربي → إنجليزي
         for ar, en in CATEGORY_MAP.items():
             if ar in user_message:
                 user_message = en
                 break
 
-        # 📡 مصدر الداتا
+        # مصدر الداتا
         if TEST_MODE:
             db = fake_db
         else:
@@ -67,18 +65,22 @@ def chat():
         workers = db.get("workers", [])
         categories = db.get("categories", [])
 
-        # 🔍 match
+        # 🔍 matching
         best_cat = process.extractOne(user_message, categories) if categories else None
 
-        if not best_cat or best_cat[1] < 60:
+        # ✅ FIX: شيلنا شرط الـ score القاتل
+        if not best_cat:
             return jsonify({"found": False})
 
         matched = best_cat[0]
 
-        results = [
-            w for w in workers
-            if matched.lower() in str(w.get("category", "")).lower()
-        ]
+        # 🔥 FIX: matching أقوى ومرن
+        results = []
+        for w in workers:
+            cat = str(w.get("category", "")).lower().strip()
+
+            if matched.lower() in cat or cat in matched.lower():
+                results.append(w)
 
         return jsonify({
             "found": len(results) > 0,
