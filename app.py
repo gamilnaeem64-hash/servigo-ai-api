@@ -105,13 +105,26 @@ def match():
             data.get("worker_list", [])
         )
 
+        # لو مفيش عامل مناسب
+        if not result:
+            return jsonify({
+                "success": False,
+                "message": "No suitable worker found"
+            })
+
+        # رجوع أفضل عامل فقط
         return jsonify({
             "success": True,
-            "data": result
+            "best_worker": result
         })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print("MATCH ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 # ================= VERIFY =================
 @app.route("/verify_payment", methods=["POST"])
