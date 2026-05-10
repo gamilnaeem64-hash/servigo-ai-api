@@ -125,31 +125,9 @@ def match():
             "success": False,
             "error": str(e)
         }), 500
-
-# ================= VERIFY =================
 @app.route("/verify_payment", methods=["POST"])
 def verify_payment_api():
-    try:
-        if "image" not in request.files:
-            return jsonify({"error": "No image"}), 400
-
-        file = request.files["image"]
-        path = "receipt.jpg"
-        file.save(path)
-
-        result = verify_receipt(path)
-
-        if os.path.exists(path):
-            os.remove(path)
-
-        return jsonify({
-            "success": True,
-            "result": result
-        })
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+    return jsonify({"status": "endpoint working"})
 # ================= HOME =================
 @app.route("/")
 def home():
