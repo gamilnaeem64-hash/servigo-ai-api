@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-<<<<<<< HEAD
+
 
 =======
->>>>>>> dc8ffc914256502d1c632ae60398c5a3052912fc
+
 import requests
 from rapidfuzz import process
 
