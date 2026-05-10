@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-os.system("apt-get update && apt-get install -y tesseract-ocr")
+
 import requests
 from rapidfuzz import process
 
