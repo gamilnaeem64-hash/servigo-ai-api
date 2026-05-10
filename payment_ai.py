@@ -32,7 +32,7 @@ def verify_receipt(image_path):
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    extracted_text = pytesseract.image_to_string(gray, lang='ara+eng')
+    extracted_text = pytesseract.image_to_string(gray)
 
     is_receipt, words = check_if_receipt(extracted_text)
 
