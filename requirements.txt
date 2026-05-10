@@ -4,3 +4,4 @@ requests
 rapidfuzz
 pytesseract
 opencv-python-headless
+Pillow
