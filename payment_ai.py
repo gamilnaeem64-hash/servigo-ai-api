@@ -2,7 +2,7 @@ import cv2
 import pytesseract
 from PIL import Image
 
-pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+
 def check_if_receipt(text):
 
     receipt_keywords = [
